@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package livekit;
 option go_package = "github.com/livekit/protocol/proto/livekit";
+option csharp_namespace = "Livekit.Client.Proto";
 
 // internal protos, not exposed to clients
 import "livekit_recording.proto";
