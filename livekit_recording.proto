@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package livekit;
 option go_package = "github.com/livekit/protocol/proto/livekit";
+option csharp_namespace = "Livekit.Client.Proto";
 
 // Recording service that can be performed on any node
 // they are Twirp-based HTTP req/responses
