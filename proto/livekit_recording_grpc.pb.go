@@ -7,6 +7,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -19,9 +20,13 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RecordingServiceClient interface {
 	// Starts a room
-	StartRecording(ctx context.Context, in *StartRecordingRequest, opts ...grpc.CallOption) (*RecordingResponse, error)
+	StartRecording(ctx context.Context, in *StartRecordingRequest, opts ...grpc.CallOption) (*StartRecordingResponse, error)
+	// Adds an rtmp output to a live recording
+	AddOutput(ctx context.Context, in *AddOutputRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// Removes an rtmp output from a live recording
+	RemoveOutput(ctx context.Context, in *RemoveOutputRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// Ends a recording
-	EndRecording(ctx context.Context, in *EndRecordingRequest, opts ...grpc.CallOption) (*RecordingResponse, error)
+	EndRecording(ctx context.Context, in *EndRecordingRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type recordingServiceClient struct {
@@ -32,8 +37,8 @@ func NewRecordingServiceClient(cc grpc.ClientConnInterface) RecordingServiceClie
 	return &recordingServiceClient{cc}
 }
 
-func (c *recordingServiceClient) StartRecording(ctx context.Context, in *StartRecordingRequest, opts ...grpc.CallOption) (*RecordingResponse, error) {
-	out := new(RecordingResponse)
+func (c *recordingServiceClient) StartRecording(ctx context.Context, in *StartRecordingRequest, opts ...grpc.CallOption) (*StartRecordingResponse, error) {
+	out := new(StartRecordingResponse)
 	err := c.cc.Invoke(ctx, "/livekit.RecordingService/StartRecording", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -41,8 +46,26 @@ func (c *recordingServiceClient) StartRecording(ctx context.Context, in *StartRe
 	return out, nil
 }
 
-func (c *recordingServiceClient) EndRecording(ctx context.Context, in *EndRecordingRequest, opts ...grpc.CallOption) (*RecordingResponse, error) {
-	out := new(RecordingResponse)
+func (c *recordingServiceClient) AddOutput(ctx context.Context, in *AddOutputRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/livekit.RecordingService/AddOutput", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *recordingServiceClient) RemoveOutput(ctx context.Context, in *RemoveOutputRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/livekit.RecordingService/RemoveOutput", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *recordingServiceClient) EndRecording(ctx context.Context, in *EndRecordingRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/livekit.RecordingService/EndRecording", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -55,9 +78,13 @@ func (c *recordingServiceClient) EndRecording(ctx context.Context, in *EndRecord
 // for forward compatibility
 type RecordingServiceServer interface {
 	// Starts a room
-	StartRecording(context.Context, *StartRecordingRequest) (*RecordingResponse, error)
+	StartRecording(context.Context, *StartRecordingRequest) (*StartRecordingResponse, error)
+	// Adds an rtmp output to a live recording
+	AddOutput(context.Context, *AddOutputRequest) (*emptypb.Empty, error)
+	// Removes an rtmp output from a live recording
+	RemoveOutput(context.Context, *RemoveOutputRequest) (*emptypb.Empty, error)
 	// Ends a recording
-	EndRecording(context.Context, *EndRecordingRequest) (*RecordingResponse, error)
+	EndRecording(context.Context, *EndRecordingRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedRecordingServiceServer()
 }
 
@@ -65,10 +92,16 @@ type RecordingServiceServer interface {
 type UnimplementedRecordingServiceServer struct {
 }
 
-func (UnimplementedRecordingServiceServer) StartRecording(context.Context, *StartRecordingRequest) (*RecordingResponse, error) {
+func (UnimplementedRecordingServiceServer) StartRecording(context.Context, *StartRecordingRequest) (*StartRecordingResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartRecording not implemented")
 }
-func (UnimplementedRecordingServiceServer) EndRecording(context.Context, *EndRecordingRequest) (*RecordingResponse, error) {
+func (UnimplementedRecordingServiceServer) AddOutput(context.Context, *AddOutputRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddOutput not implemented")
+}
+func (UnimplementedRecordingServiceServer) RemoveOutput(context.Context, *RemoveOutputRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveOutput not implemented")
+}
+func (UnimplementedRecordingServiceServer) EndRecording(context.Context, *EndRecordingRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EndRecording not implemented")
 }
 func (UnimplementedRecordingServiceServer) mustEmbedUnimplementedRecordingServiceServer() {}
@@ -102,6 +135,42 @@ func _RecordingService_StartRecording_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RecordingService_AddOutput_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddOutputRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RecordingServiceServer).AddOutput(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/livekit.RecordingService/AddOutput",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RecordingServiceServer).AddOutput(ctx, req.(*AddOutputRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RecordingService_RemoveOutput_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveOutputRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RecordingServiceServer).RemoveOutput(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/livekit.RecordingService/RemoveOutput",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RecordingServiceServer).RemoveOutput(ctx, req.(*RemoveOutputRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _RecordingService_EndRecording_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(EndRecordingRequest)
 	if err := dec(in); err != nil {
@@ -130,6 +199,14 @@ var RecordingService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "StartRecording",
 			Handler:    _RecordingService_StartRecording_Handler,
+		},
+		{
+			MethodName: "AddOutput",
+			Handler:    _RecordingService_AddOutput_Handler,
+		},
+		{
+			MethodName: "RemoveOutput",
+			Handler:    _RecordingService_RemoveOutput_Handler,
 		},
 		{
 			MethodName: "EndRecording",
